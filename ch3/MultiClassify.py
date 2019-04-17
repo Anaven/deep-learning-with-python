@@ -20,7 +20,7 @@ x_test = vectorize_sequences(test_data)
 
 print x_train[0]
 
-from keras.utils.np_utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 
 one_hot_train_labels = to_categorical(train_labels) 
 one_hot_test_labels = to_categorical(test_labels)
@@ -44,3 +44,15 @@ history = model.fit(partial_x_train,
     partial_y_train, epochs=20, 
     batch_size=512, validation_data=(x_val, y_val))
 
+import matplotlib.pyplot as plt
+
+loss = history.history['loss'] 
+val_loss = history.history['val_loss']
+epochs = range(1, len(loss) + 1)
+plt.plot(epochs, loss, 'r', label='Training loss') 
+plt.plot(epochs, val_loss, 'b', label='Validation loss') 
+plt.title('Training and validation loss') 
+plt.xlabel('Epochs') 
+plt.ylabel('Loss') 
+plt.legend()
+plt.show()
