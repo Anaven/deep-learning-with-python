@@ -22,8 +22,8 @@ x_test = vectorize_sequences(test_data)
 print x_train.shape, x_test.shape
 
 model = keras.models.Sequential() 
-model.add(keras.layers.Dense(16, activation='tanh', input_shape=(10000,))) 
-model.add(keras.layers.Dense(16, activation='tanh')) 
+model.add(keras.layers.Dense(16, activation='relu', input_shape=(10000,))) 
+model.add(keras.layers.Dense(16, activation='relu')) 
 model.add(keras.layers.Dense(1, activation='sigmoid'))
 
 model.compile(optimizer=keras.optimizers.RMSprop(lr=0.001),
