@@ -23,7 +23,6 @@ orig_model = keras.models.Sequential()
 orig_model.add(keras.layers.Dense(16, activation='relu', input_shape=(10000,))) 
 orig_model.add(keras.layers.Dense(16, activation='relu')) 
 orig_model.add(keras.layers.Dense(1, activation='sigmoid'))
-
 orig_model.compile(optimizer=keras.optimizers.RMSprop(lr=0.001),
     loss='binary_crossentropy', 
     metrics=['accuracy'])
@@ -33,7 +32,6 @@ small_model = keras.models.Sequential()
 small_model.add(keras.layers.Dense(4, activation='relu', input_shape=(10000,))) 
 small_model.add(keras.layers.Dense(4, activation='relu')) 
 small_model.add(keras.layers.Dense(1, activation='sigmoid'))
-
 small_model.compile(optimizer=keras.optimizers.RMSprop(lr=0.001),
     loss='binary_crossentropy', 
     metrics=['accuracy'])
@@ -45,17 +43,29 @@ reg_model.add(keras.layers.Dense(16, kernel_regularizer=keras.regularizers.l2(0.
 reg_model.add(keras.layers.Dense(16, kernel_regularizer=keras.regularizers.l2(0.001),
     activation='relu')) 
 reg_model.add(keras.layers.Dense(1, activation='sigmoid'))
-
 reg_model.compile(optimizer=keras.optimizers.RMSprop(lr=0.001),
     loss='binary_crossentropy', 
     metrics=['accuracy'])
 
+# drop model
+drop_model = keras.models.Sequential() 
+drop_model.add(keras.layers.Dense(16, activation='relu', input_shape=(10000,))) 
+drop_model.add(keras.layers.Dropout(0.5))
+drop_model.add(keras.layers.Dense(16, activation='relu')) 
+drop_model.add(keras.layers.Dropout(0.5))
+drop_model.add(keras.layers.Dense(1, activation='sigmoid'))
+drop_model.compile(optimizer=keras.optimizers.RMSprop(lr=0.001),
+    loss='binary_crossentropy', 
+    metrics=['accuracy'])
+
+# part data
 x_val = x_train[:10000] 
 y_val = train_labels[:10000]
 
 partial_x_train = x_train[10000:]
 partial_y_train = train_labels[10000:]
 
+# model train
 orig_history = orig_model.fit(partial_x_train,
     partial_y_train, 
     epochs=20, 
@@ -74,19 +84,31 @@ reg_history = reg_model.fit(partial_x_train,
     batch_size=512, 
     validation_data=(x_val, y_val))
 
-orig_history_dict = orig_history.history
-small_history_dict = small_history.history 
-reg_history_dict = reg_history.history 
+drop_history = drop_model.fit(partial_x_train,
+    partial_y_train, 
+    epochs=20, 
+    batch_size=512, 
+    validation_data=(x_val, y_val))
 
+# history
+orig_history_dict = orig_history.history
 orig_val_loss_values = orig_history_dict['val_loss'] 
+
+small_history_dict = small_history.history 
 small_val_loss_values = small_history_dict['val_loss']
+
+reg_history_dict = reg_history.history 
 reg_val_loss_values = reg_history_dict['val_loss']
+
+drop_history_dict = drop_history.history 
+drop_val_loss_values = drop_history_dict['val_loss']
 
 epochs = range(1, len(orig_val_loss_values) + 1)
 
-plt.plot(epochs, orig_val_loss_values, 'b', label='Ori 2-16')
-plt.plot(epochs, small_val_loss_values, 'r', label='Small 2-4')
-plt.plot(epochs, reg_val_loss_values, 'y', label='Ori Reg 2-16')
+plt.plot(epochs, orig_val_loss_values, 'b', label='2l 16u')
+plt.plot(epochs, small_val_loss_values, 'r', label='2l 4u')
+plt.plot(epochs, reg_val_loss_values, 'y', label='2l 16u reg l2')
+plt.plot(epochs, drop_val_loss_values, 'g', label='2l 16u drop')
 plt.title('Val Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Val Loss')
